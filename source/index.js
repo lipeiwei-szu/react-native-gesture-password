@@ -6,7 +6,6 @@ import Circle from './circle'
 import PropTypes from 'prop-types'
 
 const Width = Dimensions.get('window').width
-const Height = Dimensions.get('window').height
 const Radius = Width / 10
 
 export default class GesturePassword extends Component {
@@ -27,7 +26,7 @@ export default class GesturePassword extends Component {
       circles.push({
         isActive: false,
         x: p * (Radius * 2 + Margin) + Margin + Radius,
-        y: q * (Radius * 2 + Margin) + Margin + Radius
+        y: q * (Radius * 2 + Margin) + Radius
       })
     }
 
@@ -35,6 +34,12 @@ export default class GesturePassword extends Component {
       circles: circles,
       lines: []
     }
+    // {x, y, width, height}
+    this.containerLayout = {}
+    this.boardLayout = {}
+    this.onBoardLayout = this.onBoardLayout.bind(this)
+    this.onContainerLayout = this.onContainerLayout.bind(this)
+    this.getLocationY = this.getLocationY.bind(this)
   }
 
   componentWillMount() {
@@ -61,11 +66,20 @@ export default class GesturePassword extends Component {
   }
 
   render() {
-    let color = this.props.status === 'wrong' ? this.props.wrongColor : this.props.rightColor
-
+    const { status, wrongColor, rightColor, style, textStyle, message } = this.props
+    const color = status === 'wrong' ? wrongColor : rightColor
     return (
-      <View style={[styles.frame, this.props.style, { flex: 1 }]}>
-        <View style={styles.board} {...this._panResponder.panHandlers}>
+      <View style={[styles.container, style]} onLayout={this.onContainerLayout}>
+        <View style={styles.msgContainer}>
+          <Text style={[styles.msgText, textStyle, {color: color}]}>
+            {message}
+          </Text>
+        </View>
+        <View
+          style={styles.board}
+          onLayout={this.onBoardLayout}
+          {...this._panResponder.panHandlers}
+        >
           {this.renderCircles()}
           {this.renderLines()}
           <Line ref="line" color={color} />
@@ -163,7 +177,7 @@ export default class GesturePassword extends Component {
 
   onStart(event, g) {
     let x = event.nativeEvent.pageX
-    let y = event.nativeEvent.pageY
+    let y = this.getLocationY(event.nativeEvent.pageY)
 
     let lastChar = this.getTouchChar({ x, y })
     if (lastChar) {
@@ -190,7 +204,7 @@ export default class GesturePassword extends Component {
 
   onMove(event, g) {
     let x = event.nativeEvent.pageX
-    let y = event.nativeEvent.pageY
+    let y = this.getLocationY(event.nativeEvent.pageY)
 
     if (this.isMoving) {
       this.refs.line.setNativeProps({ end: { x, y } })
@@ -259,6 +273,20 @@ export default class GesturePassword extends Component {
       }
     }
   }
+
+  onBoardLayout(evt) {
+    this.boardLayout = evt.nativeEvent.layout
+    console.log(`boardLayout信息 = ${JSON.stringify(evt.nativeEvent.layout)}`)
+  }
+
+  onContainerLayout(evt) {
+    this.containerLayout = evt.nativeEvent.layout
+    console.log(`containerLayout信息 = ${JSON.stringify(evt.nativeEvent.layout)}`)
+  }
+
+  getLocationY(pageY) {
+    return pageY - this.containerLayout.y - this.boardLayout.y
+  }
 }
 
 GesturePassword.propTypes = {
@@ -289,12 +317,19 @@ GesturePassword.defaultProps = {
 }
 
 const styles = StyleSheet.create({
-  frame: {
-    backgroundColor: '#292B38'
+  container: {
   },
   board: {
     width: Width,
-    height: Height
+    height: Radius * 8
+  },
+  msgContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 50
+  },
+  msgText: {
+    fontSize: 14
   }
 })
 
