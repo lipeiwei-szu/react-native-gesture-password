@@ -13,9 +13,7 @@ import PropTypes from 'prop-types';
 
 const Width = Dimensions.get('window').width;
 const Height = Dimensions.get('window').height;
-const isVertical = Height > Width;
-const Top = isVertical ? (Height - Width)/2.0 * 1.25 : 10;
-const Radius = isVertical ? Width / 10 : Width / 25;
+const Radius = Width / 10;
 
 export default class GesturePassword extends Component {
     constructor(props) {
@@ -163,9 +161,9 @@ export default class GesturePassword extends Component {
         return false;
     }
 
-    onStart(e, g) {
-        let x = isVertical ? e.nativeEvent.pageX : e.nativeEvent.pageX - Width/3.4;
-        let y = isVertical ? e.nativeEvent.pageY - Top/1.25 : e.nativeEvent.pageY - 30;
+    onStart(event, g) {
+        let x = event.nativeEvent.pageX;
+        let y = event.nativeEvent.pageY;
 
         let lastChar = this.getTouchChar({x, y});
         if ( lastChar ) {
@@ -190,9 +188,9 @@ export default class GesturePassword extends Component {
         }
     }
 
-    onMove(e, g) {
-        let x = isVertical ? e.nativeEvent.pageX : e.nativeEvent.pageX - Width/3.4;
-        let y = isVertical ? e.nativeEvent.pageY - Top/1.25 : e.nativeEvent.pageY - 30;
+    onMove(event, g) {
+        let x = event.nativeEvent.pageX;
+        let y = event.nativeEvent.pageY;
 
         if ( this.isMoving ) {
             this.refs.line.setNativeProps({end: {x, y}});
