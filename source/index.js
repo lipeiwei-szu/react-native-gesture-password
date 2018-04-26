@@ -285,7 +285,7 @@ export default class GesturePassword extends Component {
   }
 
   getLocationY(pageY) {
-    return pageY - this.containerLayout.y - this.boardLayout.y
+    return pageY - this.containerLayout.y - this.boardLayout.y - (this.props.navBarHeight || 0)
   }
 }
 
@@ -326,7 +326,7 @@ const styles = StyleSheet.create({
   msgContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    height: 50
+    height: 40
   },
   msgText: {
     fontSize: 14
