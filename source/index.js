@@ -73,18 +73,11 @@ export default class GesturePassword extends Component {
 
         return (
             <View style={[styles.frame, this.props.style, {flex: 1}]}>
-                <View style={styles.message}>
-                    <Text style={[styles.msgText, this.props.textStyle, {color: color}]}>
-                        {this.state.message || this.props.message}
-                    </Text>
-                </View>
                 <View style={styles.board} {...this._panResponder.panHandlers}>
                     {this.renderCircles()}
                     {this.renderLines()}
                     <Line ref='line' color={color} />
                 </View>
-
-                {this.props.children}
             </View>
         )
     }
@@ -302,23 +295,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#292B38'
     },
     board: {
-        position: 'absolute',
-        left: isVertical ? 0 : Width/3.4,
-        top: isVertical ? Top/1.5 : 30,
         width: Width,
         height: Height
-    },
-    message: {
-        position: 'absolute',
-        left: 0,
-        top: 20,
-        width: Width,
-        height: Top / 3,
-        alignItems: 'center',
-        justifyContent: 'center'
-    },
-    msgText: {
-        fontSize: 14
     }
 });
 
