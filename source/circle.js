@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, View, ViewPropTypes, Image } from 'react-native'
 import PropTypes from 'prop-types'
 export default class Circle extends Component {
   constructor(props) {
@@ -7,7 +7,7 @@ export default class Circle extends Component {
   }
 
   render() {
-    let { color, normalColor, fill, x, y, r, inner, outer } = this.props
+    let { color, normalColor, fill, x, y, r, inner, outer, style } = this.props
 
     return (
       <View
@@ -16,7 +16,8 @@ export default class Circle extends Component {
           { left: x - r, top: y - r, width: 2 * r, height: 2 * r, borderRadius: r },
           { borderColor: normalColor },
           fill && { borderColor: color },
-          !outer && { borderWidth: 0 }
+          !outer && { borderWidth: 0 },
+					style
         ]}
       >
 
@@ -40,7 +41,9 @@ Circle.propTypes = {
   y: PropTypes.number,
   r: PropTypes.number,
   inner: PropTypes.bool,
-  outer: PropTypes.bool
+  outer: PropTypes.bool,
+	// circle style
+	style: ViewPropTypes.style,
 }
 
 Circle.defaultProps = {

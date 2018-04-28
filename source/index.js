@@ -1,14 +1,15 @@
 import * as helper from './helper'
-import React, { Component } from 'react'
-import { StyleSheet, PanResponder, View, Text, Dimensions } from 'react-native'
+import React from 'react'
+import { StyleSheet, PanResponder, View, Text, Dimensions, ViewPropTypes, Image } from 'react-native'
 import Line from './line'
 import Circle from './circle'
 import PropTypes from 'prop-types'
+import GesturePasswordStatus from './gesturePasswordStatus'
 
 const Width = Dimensions.get('window').width
 const Radius = Width / 10
 
-export default class GesturePassword extends Component {
+export default class GesturePassword extends React.Component {
   constructor(props) {
     super(props)
 
@@ -17,16 +18,16 @@ export default class GesturePassword extends Component {
     this.sequence = '' // 手势结果
     this.isMoving = false
 
+		const { circleRadius, circleMargin, horizontalMargin } = props
     // getInitialState
     let circles = []
-    let Margin = Radius
     for (let i = 0; i < 9; i++) {
       let p = i % 3
       let q = parseInt(i / 3)
       circles.push({
         isActive: false,
-        x: p * (Radius * 2 + Margin) + Margin + Radius,
-        y: q * (Radius * 2 + Margin) + Radius
+        x: p * (circleRadius * 2 + circleMargin) + horizontalMargin + circleRadius,
+        y: q * (circleRadius * 2 + circleMargin) + circleRadius
       })
     }
 
@@ -40,6 +41,8 @@ export default class GesturePassword extends Component {
     this.onBoardLayout = this.onBoardLayout.bind(this)
     this.onContainerLayout = this.onContainerLayout.bind(this)
     this.getLocationY = this.getLocationY.bind(this)
+    this.getLineStyle = this.getLineStyle.bind(this)
+    this.renderLines = this.renderLines.bind(this)
   }
 
   componentWillMount() {
@@ -67,7 +70,7 @@ export default class GesturePassword extends Component {
 
   render() {
     const { status, wrongColor, rightColor, style, textStyle, message } = this.props
-    const color = status === 'wrong' ? wrongColor : rightColor
+		const color = status === GesturePasswordStatus.WRONG  ? wrongColor : rightColor
     return (
       <View style={[styles.container, style]} onLayout={this.onContainerLayout}>
         <View style={styles.msgContainer}>
@@ -82,21 +85,31 @@ export default class GesturePassword extends Component {
         >
           {this.renderCircles()}
           {this.renderLines()}
-          <Line ref="line" color={color} />
+          <Line ref="line" style={this.getLineStyle()} />
         </View>
       </View>
     )
   }
 
   renderCircles() {
-    let array = [], fill, color, inner, outer
-    let { status, normalColor, wrongColor, rightColor, innerCircle, outerCircle } = this.props
+    let array = [], fill, color, inner, outer, style
+    let { status, normalColor, wrongColor, rightColor, innerCircle, outerCircle, circleRadius,
+			normalCircleStyle, selectedCircleStyle, wrongCircleStyle } = this.props
 
     this.state.circles.forEach(function(c, i) {
       fill = c.isActive
-      color = status === 'wrong' ? wrongColor : rightColor
+      color = status === GesturePasswordStatus.WRONG ? wrongColor : rightColor
       inner = !!innerCircle
       outer = !!outerCircle
+			if (c.isActive) {
+      	if (status === GesturePasswordStatus.WRONG) {
+      		style = wrongCircleStyle
+				} else {
+      		style = selectedCircleStyle
+				}
+			} else {
+      	style = normalCircleStyle
+			}
 
       array.push(
         <Circle
@@ -106,9 +119,10 @@ export default class GesturePassword extends Component {
           color={color}
           x={c.x}
           y={c.y}
-          r={Radius}
+          r={circleRadius}
           inner={inner}
           outer={outer}
+					style={style}
         />
       )
     })
@@ -120,9 +134,9 @@ export default class GesturePassword extends Component {
     let array = [], color
     let { status, wrongColor, rightColor } = this.props
 
-    this.state.lines.forEach(function(l, i) {
-      color = status === 'wrong' ? wrongColor : rightColor
-      array.push(<Line key={'l_' + i} color={color} start={l.start} end={l.end} />)
+    this.state.lines.forEach((l, i) => {
+      color = status === GesturePasswordStatus.WRONG ? wrongColor : rightColor
+      array.push(<Line key={'l_' + i} color={color} start={l.start} end={l.end} style={this.getLineStyle()} />)
     })
     return array
   }
@@ -146,11 +160,12 @@ export default class GesturePassword extends Component {
   }
 
   getTouchChar(touch) {
+  	const { circleRadius } = this.props
     let x = touch.x
     let y = touch.y
 
     for (let i = 0; i < 9; i++) {
-      if (helper.isPointInCircle({ x, y }, this.state.circles[i], Radius)) {
+      if (helper.isPointInCircle({ x, y }, this.state.circles[i], circleRadius)) {
         return String(i)
       }
     }
@@ -203,6 +218,7 @@ export default class GesturePassword extends Component {
   }
 
   onMove(event, g) {
+  	const { circleRadius } = this.props
     let x = event.nativeEvent.pageX
     let y = this.getLocationY(event.nativeEvent.pageY)
 
@@ -211,7 +227,7 @@ export default class GesturePassword extends Component {
 
       let lastChar = null
 
-      if (!helper.isPointInCircle({ x, y }, this.state.circles[this.lastIndex], Radius)) {
+      if (!helper.isPointInCircle({ x, y }, this.state.circles[this.lastIndex], circleRadius)) {
         lastChar = this.getTouchChar({ x, y })
       }
 
@@ -287,6 +303,11 @@ export default class GesturePassword extends Component {
   getLocationY(pageY) {
     return pageY - this.containerLayout.y - this.boardLayout.y - (this.props.navBarHeight || 0)
   }
+
+  getLineStyle() {
+  	const { status, wrongLineStyle, normalLineStyle } = this.props
+		return status === GesturePasswordStatus.WRONG ? wrongLineStyle : normalLineStyle
+	}
 }
 
 GesturePassword.propTypes = {
@@ -294,14 +315,30 @@ GesturePassword.propTypes = {
   normalColor: PropTypes.string,
   rightColor: PropTypes.string,
   wrongColor: PropTypes.string,
-  status: PropTypes.oneOf(['right', 'wrong', 'normal']),
+  status: PropTypes.oneOf([GesturePasswordStatus.NORMAL, GesturePasswordStatus.RIGHT, GesturePasswordStatus.RIGHT]),
   onStart: PropTypes.func,
   onEnd: PropTypes.func,
   onReset: PropTypes.func,
   interval: PropTypes.number,
   allowCross: PropTypes.bool,
   innerCircle: PropTypes.bool,
-  outerCircle: PropTypes.bool
+  outerCircle: PropTypes.bool,
+	navBarHeight: PropTypes.number,
+	// circle style
+	normalCircleStyle: ViewPropTypes.style,
+  selectedCircleStyle: ViewPropTypes.style,
+	wrongCircleStyle: ViewPropTypes.style,
+  // circle image
+  selectedCircleImage: Image.propTypes.source,
+  wrongCircleImage: Image.propTypes.source,
+  // line style
+  normalLineStyle: ViewPropTypes.style,
+  wrongLineStyle: ViewPropTypes.style,
+  circleRadius: PropTypes.number,
+  circleMargin: PropTypes.number,
+  // 整体左右侧的间距
+  horizontalMargin: PropTypes.number,
+	// todo onChange
 }
 
 GesturePassword.defaultProps = {
@@ -309,7 +346,7 @@ GesturePassword.defaultProps = {
   normalColor: '#5FA8FC',
   rightColor: '#5FA8FC',
   wrongColor: '#D93609',
-  status: 'normal',
+  status: GesturePasswordStatus.NORMAL,
   interval: 0,
   allowCross: false,
   innerCircle: true,
@@ -321,7 +358,8 @@ const styles = StyleSheet.create({
   },
   board: {
     width: Width,
-    height: Radius * 8
+		// todo
+    // height: Radius * 8
   },
   msgContainer: {
     alignItems: 'center',

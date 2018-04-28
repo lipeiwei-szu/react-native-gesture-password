@@ -1,6 +1,6 @@
 import { isEquals, getTransform } from './helper'
 import React, { Component } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, View, ViewPropTypes } from 'react-native'
 import PropTypes from 'prop-types'
 export default class Line extends Component {
   constructor(props) {
@@ -25,6 +25,8 @@ export default class Line extends Component {
 
     if (isEquals(start, end)) return null
 
+		const { style } = this.props
+
     let transform = getTransform(start, end)
     let length = transform.d
     let angle = transform.a + 'rad'
@@ -37,7 +39,8 @@ export default class Line extends Component {
         style={[
           styles.line,
           { backgroundColor: color, left: start.x, top: start.y, width: length },
-          { transform: [{ translateX: moveX }, { translateY: moveY }, { rotateZ: angle }] }
+          { transform: [{ translateX: moveX }, { translateY: moveY }, { rotateZ: angle }] },
+					style
         ]}
       />
     )
@@ -53,7 +56,10 @@ Line.propTypes = {
   end: PropTypes.shape({
     x: PropTypes.number,
     y: PropTypes.number
-  })
+  }),
+	// line style
+	normalLineStyle: ViewPropTypes.style,
+	wrongLineStyle: ViewPropTypes.style,
 }
 
 Line.defaultProps = {
