@@ -315,7 +315,7 @@ GesturePassword.propTypes = {
   normalColor: PropTypes.string,
   rightColor: PropTypes.string,
   wrongColor: PropTypes.string,
-  status: PropTypes.oneOf([GesturePasswordStatus.NORMAL, GesturePasswordStatus.RIGHT, GesturePasswordStatus.RIGHT]),
+  status: PropTypes.oneOf([GesturePasswordStatus.NORMAL, GesturePasswordStatus.RIGHT, GesturePasswordStatus.WRONG]),
   onStart: PropTypes.func,
   onEnd: PropTypes.func,
   onReset: PropTypes.func,
