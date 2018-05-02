@@ -7,7 +7,7 @@ export default class Circle extends Component {
   }
 
   render() {
-    let { color, normalColor, fill, x, y, r, inner, outer, style } = this.props
+    let { color, normalColor, fill, x, y, r, inner, outer, style, imageIcon, imageStyle } = this.props
 
     return (
       <View
@@ -20,7 +20,6 @@ export default class Circle extends Component {
 					style
         ]}
       >
-
         {inner &&
           <View
             style={[
@@ -29,6 +28,9 @@ export default class Circle extends Component {
               fill && { backgroundColor: color }
             ]}
           />}
+				{
+					imageIcon && <Image source={imageIcon} style={imageStyle}/>
+				}
       </View>
     )
   }
@@ -44,11 +46,13 @@ Circle.propTypes = {
   outer: PropTypes.bool,
 	// circle style
 	style: ViewPropTypes.style,
+	imageIcon: Image.propTypes.source,
+	imageStyle: ViewPropTypes.style
 }
 
 Circle.defaultProps = {
   inner: true,
-  outer: true
+  outer: false
 }
 
 const styles = StyleSheet.create({

@@ -92,9 +92,9 @@ export default class GesturePassword extends React.Component {
   }
 
   renderCircles() {
-    let array = [], fill, color, inner, outer, style
+    let array = [], fill, color, inner, outer, style, imageIcon
     let { status, normalColor, wrongColor, rightColor, innerCircle, outerCircle, circleRadius,
-			normalCircleStyle, selectedCircleStyle, wrongCircleStyle } = this.props
+			normalCircleStyle, selectedCircleStyle, wrongCircleStyle, selectedCircleImage, wrongCircleImage, imageStyle } = this.props
 
     this.state.circles.forEach(function(c, i) {
       fill = c.isActive
@@ -104,11 +104,14 @@ export default class GesturePassword extends React.Component {
 			if (c.isActive) {
       	if (status === GesturePasswordStatus.WRONG) {
       		style = wrongCircleStyle
+					imageIcon = wrongCircleImage
 				} else {
       		style = selectedCircleStyle
+					imageIcon = selectedCircleImage
 				}
 			} else {
       	style = normalCircleStyle
+				imageIcon = null
 			}
 
       array.push(
@@ -123,6 +126,8 @@ export default class GesturePassword extends React.Component {
           inner={inner}
           outer={outer}
 					style={style}
+					imageIcon={imageIcon}
+					imageStyle={imageStyle}
         />
       )
     })
@@ -331,6 +336,7 @@ GesturePassword.propTypes = {
   // circle image
   selectedCircleImage: Image.propTypes.source,
   wrongCircleImage: Image.propTypes.source,
+	imageStyle: ViewPropTypes.style,
   // line style
   normalLineStyle: ViewPropTypes.style,
   wrongLineStyle: ViewPropTypes.style,
