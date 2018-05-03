@@ -373,7 +373,7 @@ const styles = StyleSheet.create({
     height: 40
   },
   msgText: {
-    fontSize: 14
+    fontSize: 12
   }
 })
 
