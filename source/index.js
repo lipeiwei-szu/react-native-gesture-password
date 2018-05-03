@@ -370,7 +370,7 @@ const styles = StyleSheet.create({
   msgContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    height: 40
+    height: 50
   },
   msgText: {
     fontSize: 12
