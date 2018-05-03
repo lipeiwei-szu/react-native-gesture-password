@@ -45,6 +45,7 @@ export default class GesturePassword extends React.Component {
     this.getLocationY = this.getLocationY.bind(this)
     this.getLineStyle = this.getLineStyle.bind(this)
     this.renderLines = this.renderLines.bind(this)
+    this.notifyPwdChange = this.notifyPwdChange.bind(this)
   }
 
   componentWillMount() {
@@ -217,6 +218,7 @@ export default class GesturePassword extends React.Component {
       this.refs.line.setNativeProps({ start: point, end: point })
 
       this.props.onStart && this.props.onStart()
+			this.notifyPwdChange()
 
       if (this.props.interval > 0) {
         clearTimeout(this.timer)
@@ -274,6 +276,8 @@ export default class GesturePassword extends React.Component {
 
         this.refs.line.setNativeProps({ start: point })
       }
+
+			this.notifyPwdChange()
     }
 
     if (this.sequence.length === 9) this.onEnd()
@@ -315,6 +319,12 @@ export default class GesturePassword extends React.Component {
   	const { status, wrongLineStyle, normalLineStyle } = this.props
 		return status === GesturePasswordStatus.WRONG ? wrongLineStyle : normalLineStyle
 	}
+
+	notifyPwdChange() {
+  	const { onPwdChange } = this.props
+		const password = helper.getRealPassword(this.sequence)
+		onPwdChange && onPwdChange(password)
+	}
 }
 
 GesturePassword.propTypes = {
@@ -346,7 +356,7 @@ GesturePassword.propTypes = {
   circleMargin: PropTypes.number,
   // 整体左右侧的间距
   horizontalMargin: PropTypes.number,
-	// todo onChange
+	onPwdChange: PropTypes.func
 }
 
 GesturePassword.defaultProps = {
