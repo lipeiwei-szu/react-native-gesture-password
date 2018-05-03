@@ -19,6 +19,8 @@ export default class GesturePassword extends React.Component {
     this.isMoving = false
 
 		const { circleRadius, circleMargin, horizontalMargin } = props
+		// 手势密码的高度
+		this.boardHeight = circleRadius * 2 * 3 + circleMargin * 2
     // getInitialState
     let circles = []
     for (let i = 0; i < 9; i++) {
@@ -79,13 +81,13 @@ export default class GesturePassword extends React.Component {
           </Text>
         </View>
         <View
-          style={styles.board}
+          style={[styles.board, { height: this.boardHeight }]}
           onLayout={this.onBoardLayout}
           {...this._panResponder.panHandlers}
         >
-          {this.renderCircles()}
           {this.renderLines()}
           <Line ref="line" style={this.getLineStyle()} />
+					{this.renderCircles()}
         </View>
       </View>
     )
@@ -363,9 +365,7 @@ const styles = StyleSheet.create({
   container: {
   },
   board: {
-    width: Width,
-		// todo
-    // height: Radius * 8
+    width: Width
   },
   msgContainer: {
     alignItems: 'center',
